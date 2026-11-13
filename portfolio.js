@@ -51,8 +51,8 @@ function drawPortrait(ctx, tones, archive) {
     }
   });
   ctx.fillStyle = tones[2];
-  annotate(ctx, archive ? 'PROFILE STUDY' : 'CHARACTER STUDY', 43, 744);
-  annotate(ctx, archive ? '06' : '01', 674, 58);
+  annotate(ctx, archive ? 'PROFILE STUDY' : 'MASK STUDY', 43, 744);
+  annotate(ctx, archive ? '01B' : '01', 660, 58);
 }
 
 function drawFractal(ctx, tones) {
@@ -166,17 +166,19 @@ function drawAtlas(ctx, tones) {
 }
 
 const studies = {
-  ascii: { title:'ASCII Face Lab', medium:'Character portrait', number:'01', draw:drawPortrait },
+  ascii: { title:'ASCII Face Lab', medium:'Geometric mask', number:'01', draw:drawPortrait },
   fractal: { title:'Fractalia', medium:'Escape-time study', number:'02', draw:drawFractal },
   transduction: { title:'Xformed', medium:'Signal study', number:'03', draw:drawTransduction },
   city: { title:'CityGuard', medium:'Route study', number:'04', draw:drawCity },
   atlas: { title:'Engineering Atlas', medium:'Learning paths', number:'05', draw:drawAtlas },
-  portrait: { title:'ASCII Portrait', medium:'Original work', number:'06', draw:(ctx, tones) => drawPortrait(ctx,tones,true) },
+  portrait: { title:'ASCII Portrait', medium:'Original proof', number:'01B', draw:(ctx, tones) => drawPortrait(ctx,tones,true) },
 };
 const plate = document.querySelector('.plate');
 const art = plate.querySelector('canvas');
 const context = art.getContext('2d');
 const entries = [...document.querySelectorAll('[data-study]')];
+const egg = document.querySelector('.lab-egg');
+const stamp = egg.querySelector('summary');
 const cached = new Map();
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 let current;
@@ -218,7 +220,7 @@ function show(key, motion = true) {
   }
   impression = next;
   plate.dataset.plate = key;
-  plate.querySelector('.plate-no').textContent = study.number + ' / 06';
+  plate.querySelector('.plate-no').textContent = key === 'portrait' ? study.number : study.number + ' / 05';
   plate.querySelector('.plate-name').textContent = study.title;
   plate.querySelector('.plate-medium').textContent = study.medium;
   entries.forEach(entry => entry.toggleAttribute('data-active',entry.dataset.study === key));
@@ -260,6 +262,15 @@ for (const entry of entries) {
   });
   entry.addEventListener('focus',choose);
 }
+egg.addEventListener('toggle', () => {
+  cancelAnimationFrame(requestId);
+  show(egg.open ? 'portrait' : 'ascii');
+});
+egg.addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || !egg.open) return;
+  egg.open = false;
+  stamp.focus();
+});
 show('ascii',false);
 document.fonts.ready.then(() => {
   const key = current;
