@@ -1,4 +1,5 @@
-import portraits from './assets/portrait-proof.js?v=art-deco';
+import archivedProof from './assets/portrait-proof.js?v=archive';
+import frames from './assets/face-lab-orbit.js';
 
 const width = 750;
 const height = 800;
@@ -24,12 +25,12 @@ function annotate(ctx, label, x, y) {
   ctx.fillText(label, x, y);
 }
 
-function drawPortrait(ctx, tones, archive) {
-  const proof = portraits[archive ? 1 : 0];
+function drawPortrait(ctx, tones) {
+  const proof = archivedProof;
   const columns = proof[0].length;
   const start = 58;
   const step = (width - start * 2) / columns;
-  const band = archive ? 10.6 : 10.45;
+  const band = 10.6;
   ctx.textAlign = 'center';
   ctx.font = '12px "IBM Plex Mono", monospace';
   const rowCenter = Math.floor(proof.length / 2);
@@ -46,15 +47,57 @@ function drawPortrait(ctx, tones, archive) {
     for (let x = 0; x < row.length; x++) {
       const letter = row[x];
       if (letter === ' ') continue;
-      ctx.fillStyle = archive
-        ? (Math.abs(y - rowCenter) < 5 ? tones[2] : tones[1])
-        : ('#%@'.includes(letter) ? tones[2] : '.:-='.includes(letter) ? '#69a990' : tones[1]);
+      ctx.fillStyle = Math.abs(y - rowCenter) < 5 ? tones[2] : tones[1];
       ctx.fillText(letter, start + (x + .5) * step, 69 + y * band);
     }
   });
   ctx.fillStyle = tones[2];
-  annotate(ctx, archive ? 'PROFILE STUDY' : 'ART DECO STUDY', 43, 744);
-  annotate(ctx, archive ? '01B' : '01', 660, 58);
+  annotate(ctx, '01B', 660, 58);
+}
+
+function drawOrbitPaper(ctx) {
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = '#9bdfbc38';
+  ctx.beginPath();
+  ctx.arc(375,400,278,0,Math.PI*2);
+  ctx.moveTo(375,99);
+  ctx.lineTo(375,690);
+  ctx.moveTo(76,400);
+  ctx.lineTo(674,400);
+  ctx.moveTo(76,706);
+  ctx.lineTo(674,706);
+  for (let i=0; i<=8; i++) {
+    const x=76+i*(598/8);
+    ctx.moveTo(x,700);
+    ctx.lineTo(x,712);
+  }
+  ctx.stroke();
+}
+
+const orbitRows = frames.map(frame => frame.split('\n'));
+const orbitRamp = ' .,:;irsx253hMHGS#9B&@';
+const orbitTones = ['#669c89','#82baa4','#a7dac0','#cff1d6','#fcf4d8'];
+const restingPose = 6;
+const orbitDuration = 8400;
+
+function drawOrbitFrame(ctx, pose) {
+  ctx.drawImage(getImpression('ascii'),0,0);
+  ctx.textAlign = 'center';
+  ctx.font = '11.65px "IBM Plex Mono", monospace';
+  orbitRows[pose].forEach((row,y) => {
+    for (let x=0; x<row.length; x++) {
+      const char = row[x];
+      if (char === ' ') continue;
+      ctx.fillStyle = orbitTones[Math.min(4,Math.floor(orbitRamp.indexOf(char)/3.4))];
+      ctx.fillText(char, 42.5+x*7, 64+y*10.3);
+    }
+  });
+  const x = 76+598*pose/(orbitRows.length-1);
+  ctx.fillStyle = '#fcf4d8';
+  ctx.fillRect(x-2,703,4,6);
+  ctx.textAlign = 'center';
+  ctx.font = '14px "IBM Plex Mono", monospace';
+  ctx.fillText(String(pose*2).padStart(2,'0') + '°', x, 730);
 }
 
 function drawFractal(ctx, tones) {
@@ -104,9 +147,6 @@ function drawTransduction(ctx, tones) {
     ctx.strokeStyle = track % 7 === 0 ? tones[2] : tones[1] + 'ac';
     ctx.stroke();
   }
-  ctx.fillStyle = tones[1];
-  annotate(ctx, 'TEXT / IMAGE / SOUND', 46, 97);
-  annotate(ctx, 'SIGNAL STUDY', 46, 710);
 }
 
 function drawCity(ctx, tones) {
@@ -163,30 +203,77 @@ function drawAtlas(ctx, tones) {
     ctx.fillStyle = tones[1];
     annotate(ctx, String(i+1).padStart(2,'0'), x+24,y-17);
   });
+}
+
+function drawIndexPlate(ctx, tones, number) {
+  ctx.save();
+  ctx.translate(width/2,height/2);
+  ctx.rotate(-.22);
+  for (let i=0; i<11; i++) {
+    ctx.strokeStyle = tones[1] + '55';
+    ctx.strokeRect(-235+i*12,-290+i*12,470-i*24,580-i*24);
+  }
+  ctx.rotate(.22);
   ctx.fillStyle = tones[2];
-  annotate(ctx,'LEARNING PATHS',46,744);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '900 276px "Barlow Condensed", Impact, sans-serif';
+  ctx.fillText(number,0,0);
+  ctx.restore();
 }
 
 const studies = {
-  ascii: { title:'ASCII Face Lab', medium:'Art Deco study', number:'01', draw:drawPortrait },
-  fractal: { title:'Fractalia', medium:'Escape-time study', number:'02', draw:drawFractal },
-  transduction: { title:'Xformed', medium:'Signal study', number:'03', draw:drawTransduction },
-  city: { title:'CityGuard', medium:'Route study', number:'04', draw:drawCity },
-  atlas: { title:'Engineering Atlas', medium:'Learning paths', number:'05', draw:drawAtlas },
-  portrait: { title:'ASCII Portrait', medium:'Original proof', number:'01B', draw:(ctx, tones) => drawPortrait(ctx,tones,true) },
+  ascii: { medium:'Photo-fitted turntable', draw:drawOrbitPaper },
+  fractal: { medium:'Escape-time study', draw:drawFractal },
+  transduction: { medium:'Signal study', draw:drawTransduction },
+  city: { medium:'Route study', draw:drawCity },
+  atlas: { medium:'Learning paths', draw:drawAtlas },
+  portrait: { title:'ASCII Portrait', medium:'Original proof', number:'01B', draw:drawPortrait },
 };
 const plate = document.querySelector('.plate');
 const art = plate.querySelector('canvas');
 const context = art.getContext('2d');
+const projects = document.querySelector('.projects');
+const rows = [...projects.children];
+const numberLabel = number => String(number).padStart(2,'0');
+rows.forEach((row,index) => {
+  const link = row.querySelector('.entry');
+  const number = numberLabel(index+1);
+  const key = link.dataset.study || 'project-' + number;
+  link.dataset.study = key;
+  link.querySelector('.number').textContent = number;
+  studies[key] = {
+    medium: link.dataset.medium || '',
+    draw: (ctx,tones) => drawIndexPlate(ctx,tones,number),
+    ...(Object.hasOwn(studies,key) && studies[key]),
+    title: link.querySelector('.entry-text strong').textContent,
+    number,
+  };
+});
 const entries = [...document.querySelectorAll('[data-study]')];
 const egg = document.querySelector('.lab-egg');
 const stamp = egg.querySelector('summary');
+const orbitToggle = plate.querySelector('.orbit-toggle');
 const cached = new Map();
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const pageSize = 6;
+const pageTotal = Math.ceil(rows.length / pageSize);
+const footer = document.querySelector('.index-footer');
+const previousPage = footer.querySelector('.page-prev');
+const nextPage = footer.querySelector('.page-next');
+const pageCount = footer.querySelector('.page-count');
+const indexRange = document.querySelector('.index-range');
+let page;
 let current;
 let impression;
 let animation = 0;
 let requestId = 0;
+let orbitId = 0;
+let orbitTime = Math.acos(1-2*restingPose/(orbitRows.length-1))*orbitDuration/(2*Math.PI);
+let lastTick = 0;
+let currentPose = restingPose;
+let orbitVisible = false;
+let orbitPaused = false;
 
 function getImpression(key) {
   if (!cached.has(key)) {
@@ -194,7 +281,7 @@ function getImpression(key) {
     sheet.width = width;
     sheet.height = height;
     const ctx = sheet.getContext('2d');
-    const tones = palette[key];
+    const tones = Object.hasOwn(palette,key) ? palette[key] : palette.atlas;
     ctx.fillStyle = tones[0];
     ctx.fillRect(0,0,width,height);
     studies[key].draw(ctx,tones);
@@ -208,26 +295,29 @@ function getImpression(key) {
 
 function show(key, motion = true) {
   if (current === key) return;
+  const wasOrbit = current === 'ascii';
+  stopOrbit();
   current = key;
   const study = studies[key];
-  const next = getImpression(key);
+  const next = key === 'ascii' ? snapshot() : getImpression(key);
+  if (key === 'ascii') drawOrbitFrame(next.getContext('2d'),reduced.matches ? restingPose : currentPose);
   let previous = impression;
-  if (animation) {
+  if (animation || wasOrbit) {
     cancelAnimationFrame(animation);
     animation = 0;
-    previous = document.createElement('canvas');
-    previous.width = width;
-    previous.height = height;
+    previous = snapshot();
     previous.getContext('2d').drawImage(art,0,0);
   }
   impression = next;
   plate.dataset.plate = key;
-  plate.querySelector('.plate-no').textContent = key === 'portrait' ? study.number : study.number + ' / 05';
+  plate.querySelector('.plate-no').textContent = key === 'portrait' ? study.number : study.number + ' / ' + numberLabel(rows.length);
   plate.querySelector('.plate-name').textContent = study.title;
   plate.querySelector('.plate-medium').textContent = study.medium;
+  updateOrbitToggle();
   entries.forEach(entry => entry.toggleAttribute('data-active',entry.dataset.study === key));
   if (!previous || !motion || reduced.matches) {
     context.drawImage(next,0,0);
+    syncOrbit();
     return;
   }
   const start = performance.now();
@@ -247,17 +337,75 @@ function show(key, motion = true) {
     context.restore();
     if (amount<1 && !reduced.matches) animation=requestAnimationFrame(print);
     else {
-      context.drawImage(next,0,0);
+      if (key === 'ascii' && reduced.matches) drawOrbitFrame(context,restingPose);
+      else context.drawImage(next,0,0);
       animation=0;
+      syncOrbit();
     }
   }
   animation=requestAnimationFrame(print);
 }
 
+function snapshot() {
+  const sheet = document.createElement('canvas');
+  sheet.width = width;
+  sheet.height = height;
+  return sheet;
+}
+
+function stopOrbit() {
+  cancelAnimationFrame(orbitId);
+  orbitId = 0;
+  lastTick = 0;
+}
+
+function syncOrbit() {
+  if (current !== 'ascii' || animation || !orbitVisible || orbitPaused || reduced.matches || document.hidden) {
+    stopOrbit();
+  } else if (!orbitId) {
+    orbitId = requestAnimationFrame(tickOrbit);
+  }
+}
+
+function tickOrbit(now) {
+  if (lastTick) orbitTime = (orbitTime+Math.min(now-lastTick,100))%orbitDuration;
+  lastTick = now;
+  const nextPose = Math.round((orbitRows.length-1)*(.5-.5*Math.cos(2*Math.PI*orbitTime/orbitDuration)));
+  if (nextPose !== currentPose) {
+    currentPose = nextPose;
+    drawOrbitFrame(context,currentPose);
+  }
+  orbitId = requestAnimationFrame(tickOrbit);
+}
+
+function updateOrbitToggle() {
+  orbitToggle.hidden = current !== 'ascii' || reduced.matches;
+  orbitToggle.toggleAttribute('data-paused',orbitPaused);
+  orbitToggle.setAttribute('aria-label',orbitPaused ? 'Resume portrait rotation' : 'Pause portrait rotation');
+}
+
+orbitToggle.addEventListener('click', () => {
+  orbitPaused = !orbitPaused;
+  updateOrbitToggle();
+  syncOrbit();
+});
+new IntersectionObserver(([entry]) => {
+  orbitVisible = entry.isIntersecting;
+  syncOrbit();
+}).observe(art);
+document.addEventListener('visibilitychange',syncOrbit);
+reduced.addEventListener('change', () => {
+  updateOrbitToggle();
+  syncOrbit();
+  if (current === 'ascii' && !animation) drawOrbitFrame(context,reduced.matches ? restingPose : currentPose);
+});
+
 for (const entry of entries) {
   const choose = () => {
     cancelAnimationFrame(requestId);
-    requestId = requestAnimationFrame(() => show(entry.dataset.study));
+    requestId = requestAnimationFrame(() => {
+      if (!entry.closest('[hidden]')) show(entry.dataset.study);
+    });
   };
   entry.addEventListener('pointerenter', event => {
     if (event.pointerType !== 'touch') choose();
@@ -265,6 +413,7 @@ for (const entry of entries) {
   entry.addEventListener('focus',choose);
 }
 egg.addEventListener('toggle', () => {
+  if (egg.closest('[hidden]')) return;
   cancelAnimationFrame(requestId);
   show(egg.open ? 'portrait' : 'ascii');
 });
@@ -273,7 +422,53 @@ egg.addEventListener('keydown', event => {
   egg.open = false;
   stamp.focus();
 });
-show('ascii',false);
+function pageFromLocation() {
+  const requested = new URL(location.href).searchParams.get('page');
+  return requested && /^\d+$/.test(requested) ? Math.max(1,Math.min(Number(requested),pageTotal)) : 1;
+}
+
+function pageUrl(number) {
+  const url = new URL(location.href);
+  if (number === 1) url.searchParams.delete('page');
+  else url.searchParams.set('page',number);
+  url.hash = '';
+  return url;
+}
+
+function renderPage(number, moveFocus = false) {
+  if (number === page) return;
+  page = number;
+  cancelAnimationFrame(requestId);
+  const start = (page-1)*pageSize;
+  const end = Math.min(start+pageSize,rows.length);
+  rows.forEach((row,index) => { row.hidden = index<start || index>=end; });
+  if (egg.closest('[hidden]')) egg.open = false;
+  projects.start = start+1;
+  indexRange.textContent = start+1 === end ? numberLabel(end) : numberLabel(start+1)+'–'+numberLabel(end);
+  footer.hidden = pageTotal <= 1;
+  previousPage.hidden = page <= 1;
+  nextPage.hidden = page >= pageTotal;
+  if (!previousPage.hidden) previousPage.href = pageUrl(page-1);
+  if (!nextPage.hidden) nextPage.href = pageUrl(page+1);
+  pageCount.textContent = 'Page '+page+' of '+pageTotal;
+  show(rows[start].querySelector('.entry').dataset.study,false);
+  if (moveFocus) {
+    document.getElementById('work-title').focus({ preventScroll:true });
+    document.getElementById('work').scrollIntoView({ block:'start' });
+  }
+}
+
+for (const [link,step] of [[previousPage,-1],[nextPage,1]]) {
+  link.addEventListener('click',event => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const number = page+step;
+    history.pushState(null,'',pageUrl(number));
+    renderPage(number,true);
+  });
+}
+window.addEventListener('popstate',() => renderPage(pageFromLocation()));
+renderPage(pageFromLocation());
 document.fonts.ready.then(() => {
   const key = current;
   cached.clear();

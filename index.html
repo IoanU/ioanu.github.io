@@ -5,31 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#e0edda">
   <meta name="description" content="Ioan Ursescu’s web projects. Creative tools, visual experiments, and a software engineering atlas.">
-  <meta property="og:title" content="Ioan Ursescu — Work in the browser">
-  <meta property="og:description" content="Five web projects by Ioan Ursescu.">
+  <meta property="og:title" content="Ioan Ursescu — Portfolio">
+  <meta property="og:description" content="Web projects by Ioan Ursescu.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ioanu.github.io/">
-  <title>Ioan Ursescu — Work in the browser</title>
+  <title>Ioan Ursescu — Portfolio</title>
   <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
   <link rel="preload" href="assets/barlow-black.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/instrument-italic.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="portfolio.css?v=face-lab-portrait">
+  <link rel="preload" href="assets/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="portfolio.css?v=project-pages">
 </head>
 <body>
   <a class="skip" href="#work">Skip to projects</a>
   <header class="mast wrap">
-    <div class="imprint"><img src="assets/mark.svg" width="28" height="28" alt=""><span>Personal portfolio</span></div>
+    <div class="imprint"><img src="assets/github-avatar.png" width="34" height="34" alt=""><span>Personal portfolio</span></div>
     <a href="https://github.com/IoanU">GitHub <span aria-hidden="true">↗</span></a>
   </header>
   <main class="wrap">
     <div class="spread">
       <section class="intro" aria-labelledby="page-title">
         <h1 id="page-title" aria-label="Ioan Ursescu"><em>Ioan</em> <strong>Ursescu</strong></h1>
-        <p>Work in the browser.</p>
       </section>
       <section id="work" class="work" aria-labelledby="work-title">
-        <div class="index-head"><h2 id="work-title">Project index</h2><span>01–05</span></div>
-        <ol class="projects">
+        <div class="index-head"><h2 id="work-title" tabindex="-1">Project index</h2><span class="index-range">01–05</span></div>
+        <ol class="projects" id="project-list">
           <li class="lab-row">
             <a class="entry" data-study="ascii" href="https://ioanu.github.io/ascii-face-lab/"><span class="number">01</span><span class="entry-text"><strong>ASCII Face Lab</strong><span>Sculpt and export 3D portraits made of text.</span></span><span class="arrow" aria-hidden="true">↗</span></a>
             <details class="lab-egg">
@@ -46,21 +46,34 @@
           <li><a class="entry" data-study="atlas" href="https://ioanu.github.io/johnSWE/"><span class="number">05</span><span class="entry-text"><strong>Engineering Atlas</strong><span>Browse free courses, labs, and guides.</span></span><span class="arrow" aria-hidden="true">↗</span></a></li>
         </ol>
       </section>
-      <figure class="plate" aria-hidden="true" data-plate="ascii">
+      <figure class="plate" data-plate="ascii">
         <div class="plate-paper">
-          <div class="plate-art">
+          <div class="plate-art" aria-hidden="true">
             <canvas width="750" height="800"></canvas>
             <div class="plate-corners"><i></i><i></i><i></i><i></i></div>
             <span class="plate-mark">+</span>
           </div>
           <figcaption>
             <div><span class="plate-no">01 / 05</span><strong class="plate-name">ASCII Face Lab</strong></div>
-            <span class="plate-medium">Art Deco study</span>
+            <div class="plate-meta">
+              <span class="plate-medium">Photo-fitted turntable</span>
+              <button class="orbit-toggle" type="button" aria-label="Pause portrait rotation" hidden>
+                <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true"><path class="orbit-pause-icon" d="M7 5v10m6-10v10"/><path class="orbit-play-icon" d="m7 5 8 5-8 5Z"/></svg>
+              </button>
+            </div>
           </figcaption>
         </div>
+        <p class="plate-credit">Base scan: <a href="https://github.com/keijiro/InfiniteScan">Lee Perry-Smith / Infinite Realities</a>, adapted · <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a></p>
       </figure>
     </div>
   </main>
-  <script type="module" src="portfolio.js?v=face-lab-portrait"></script>
+  <footer class="index-footer wrap" hidden>
+    <nav class="pagination" aria-label="Project pages">
+      <a class="page-prev" href="./" rel="prev" hidden><span aria-hidden="true">←</span> Previous page</a>
+      <span class="page-count" aria-live="polite" aria-atomic="true"></span>
+      <a class="page-next" href="?page=2" rel="next" hidden>Next page <span aria-hidden="true">→</span></a>
+    </nav>
+  </footer>
+  <script type="module" src="portfolio.js?v=project-pages"></script>
 </body>
 </html>
