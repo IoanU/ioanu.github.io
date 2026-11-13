@@ -1,9 +1,9 @@
-import portraits from './assets/portrait-proof.js';
+import portraits from './assets/portrait-proof.js?v=art-deco';
 
 const width = 750;
 const height = 800;
 const palette = {
-  ascii: ['#3b166f', '#cbb6ff', '#fcefe5'],
+  ascii: ['#163e42', '#9bdfbc', '#fcf4d8'],
   fractal: ['#182936', '#6de5c4', '#efb669'],
   transduction: ['#671e54', '#ffc9e9', '#ff9f69'],
   city: ['#262052', '#b9b9ee', '#f8be75'],
@@ -29,7 +29,7 @@ function drawPortrait(ctx, tones, archive) {
   const columns = proof[0].length;
   const start = 58;
   const step = (width - start * 2) / columns;
-  const band = 10.6;
+  const band = archive ? 10.6 : 10.45;
   ctx.textAlign = 'center';
   ctx.font = '12px "IBM Plex Mono", monospace';
   const rowCenter = Math.floor(proof.length / 2);
@@ -46,12 +46,14 @@ function drawPortrait(ctx, tones, archive) {
     for (let x = 0; x < row.length; x++) {
       const letter = row[x];
       if (letter === ' ') continue;
-      ctx.fillStyle = Math.abs(y - rowCenter) < 5 ? tones[2] : tones[1];
+      ctx.fillStyle = archive
+        ? (Math.abs(y - rowCenter) < 5 ? tones[2] : tones[1])
+        : ('#%@'.includes(letter) ? tones[2] : '.:-='.includes(letter) ? '#69a990' : tones[1]);
       ctx.fillText(letter, start + (x + .5) * step, 69 + y * band);
     }
   });
   ctx.fillStyle = tones[2];
-  annotate(ctx, archive ? 'PROFILE STUDY' : 'MASK STUDY', 43, 744);
+  annotate(ctx, archive ? 'PROFILE STUDY' : 'ART DECO STUDY', 43, 744);
   annotate(ctx, archive ? '01B' : '01', 660, 58);
 }
 
@@ -166,7 +168,7 @@ function drawAtlas(ctx, tones) {
 }
 
 const studies = {
-  ascii: { title:'ASCII Face Lab', medium:'Geometric mask', number:'01', draw:drawPortrait },
+  ascii: { title:'ASCII Face Lab', medium:'Art Deco study', number:'01', draw:drawPortrait },
   fractal: { title:'Fractalia', medium:'Escape-time study', number:'02', draw:drawFractal },
   transduction: { title:'Xformed', medium:'Signal study', number:'03', draw:drawTransduction },
   city: { title:'CityGuard', medium:'Route study', number:'04', draw:drawCity },
